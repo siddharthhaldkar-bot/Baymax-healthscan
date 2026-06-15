@@ -1,0 +1,28 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Database (Keep local DB out of GitHub)
+db.sqlite3
+*.sqlite3-journal
+
+# Environments
+.env
+venv/
+env/
+ENV/
+.venv/
+
+# IDE / Editor configurations
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+
+# OS generated files
+.DS_Store
+Thumbs.db

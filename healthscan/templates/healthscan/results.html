@@ -1,0 +1,240 @@
+{% extends 'healthscan/base.html' %}
+
+{% block content %}
+<div class="container">
+  
+  <!-- Back Button & Save Toggle -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <a href="{% url 'scanner' %}" class="btn btn-outline-custom">
+      <i class="fa-solid fa-chevron-left me-1"></i> <span data-translate="btn_scan_another">Scan Another</span>
+    </a>
+    
+    <button id="btn-save-toggle" class="btn {% if is_saved %}btn-warning text-white{% else %}btn-outline-warning{% endif %} fw-bold" data-barcode="{{ scan.barcode }}">
+      <i class="fa-{% if is_saved %}solid{% else %}regular{% endif %} fa-star me-1"></i>
+      <span id="save-btn-text">{% if is_saved %}Saved{% else %}Save Product{% endif %}</span>
+    </button>
+  </div>
+
+  <!-- Purchase Logging Prompt -->
+  <div id="purchase-prompt-card" class="glass-card p-4 mb-4" {% if is_logged %}style="display: none;"{% endif %}>
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+      <div class="d-flex align-items-center gap-3">
+        <div class="rounded-circle bg-primary-subtle text-primary d-flex justify-content-center align-items-center" style="width: 48px; height: 48px; min-width: 48px;">
+          <i class="fa-solid fa-cart-shopping" style="font-size: 1.5rem;"></i>
+        </div>
+        <div>
+          <h5 class="fw-bold mb-1" data-translate="buy_prompt_title">Did you buy or eat this product?</h5>
+          <p class="text-muted mb-0 small" data-translate="buy_prompt_subtitle">Add it to your Baymax Health Report log to track your consumption history.</p>
+        </div>
+      </div>
+      <div class="d-flex gap-2">
+        <button id="btn-log-purchase" class="btn btn-primary-custom px-4 py-2 fw-bold" data-barcode="{{ scan.barcode }}">
+          <i class="fa-solid fa-check me-1"></i> <span data-translate="btn_yes_bought">Yes, I bought it</span>
+        </button>
+        <a href="{% url 'scanner' %}" class="btn btn-outline-secondary px-4 py-2 fw-bold" data-translate="btn_no_checking">
+          No, just checking
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div id="purchase-logged-card" class="glass-card p-4 mb-4 border border-success-subtle bg-success-subtle text-success" {% if not is_logged %}style="display: none;"{% endif %}>
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+      <div class="d-flex align-items-center gap-3">
+        <div class="rounded-circle bg-success text-white d-flex justify-content-center align-items-center" style="width: 48px; height: 48px; min-width: 48px;">
+          <i class="fa-solid fa-circle-check" style="font-size: 1.5rem;"></i>
+        </div>
+        <div>
+          <h5 class="fw-bold mb-1" data-translate="buy_logged_title">Product logged in your Health Report!</h5>
+          <p class="text-success-emphasis mb-0 small" data-translate="buy_logged_subtitle">This product is now counted in your personal Baymax Health Report statistics.</p>
+        </div>
+      </div>
+      <a href="{% url 'scanner' %}" class="btn btn-success px-4 py-2 fw-bold" data-translate="btn_scan_another">
+        <i class="fa-solid fa-camera me-1"></i> Scan Another
+      </a>
+    </div>
+  </div>
+
+  <div class="row">
+    <!-- Left Column: Product Info & Nutrition -->
+    <div class="col-lg-5 mb-4">
+      <div class="glass-card p-4 text-center h-100">
+        <div class="mb-4 bg-white rounded-4 p-3 border d-inline-block shadow-sm" style="width: 180px; height: 180px;">
+          {% if scan.image_url %}
+            <img src="{{ scan.image_url }}" alt="{{ scan.product_name }}" style="width: 100%; height: 100%; object-fit: contain;">
+          {% else %}
+            <div class="w-100 h-100 d-flex justify-content-center align-items-center bg-light rounded-4">
+              <i class="fa-solid fa-bowl-food text-muted" style="font-size: 4rem;"></i>
+            </div>
+          {% endif %}
+        </div>
+        
+        <h3 class="fw-bold mb-1">{{ scan.product_name|default:"Unknown Product" }}</h3>
+        <p class="text-secondary mb-3">{{ scan.brand|default:"Unknown Brand" }}</p>
+        <span class="badge rounded-pill {% if scan.risk_level == 'HEALTHY' %}badge-healthy{% elif scan.risk_level == 'UNHEALTHY' %}badge-unhealthy{% else %}badge-moderate{% endif %} px-3 py-2 fw-semibold fs-6 mb-4 risk-level-badge" data-risk="{{ scan.risk_level }}">
+          {{ scan.risk_level|title }}
+        </span>
+
+        <!-- Nutrition Facts Panel -->
+        <div class="border-top pt-4 text-start">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold mb-0" data-translate="nutrition_title">Nutrition Facts</h5>
+            <small class="text-muted" data-translate="per_100g">per 100g</small>
+          </div>
+          
+          <!-- Nutrient Progress Bars -->
+          <div class="mb-3">
+            <div class="nutrient-bar-label">
+              <span data-translate="nutrient_calories">Calories (Energy)</span>
+              <strong>{{ scan.nutrition_facts.energy_kcal|floatformat:0 }} kcal</strong>
+            </div>
+            <div class="progress progress-custom">
+              <div class="progress-bar bg-primary" role="progressbar" style="width: {% widthratio scan.nutrition_facts.energy_kcal 600 100 %}%"></div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <div class="nutrient-bar-label">
+              <span data-translate="nutrient_carbs">Carbohydrates</span>
+              <strong>{{ scan.nutrition_facts.carbohydrates|floatformat:1 }}g</strong>
+            </div>
+            <div class="progress progress-custom">
+              <div class="progress-bar bg-info" role="progressbar" style="width: {% widthratio scan.nutrition_facts.carbohydrates 80 100 %}%"></div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <div class="nutrient-bar-label">
+              <span data-translate="nutrient_sugars">Sugars</span>
+              <strong>{{ scan.nutrition_facts.sugars|floatformat:1 }}g</strong>
+            </div>
+            <div class="progress progress-custom">
+              <div class="progress-bar {% if scan.nutrition_facts.sugars > 15 %}bg-danger{% else %}bg-warning{% endif %}" role="progressbar" style="width: {% widthratio scan.nutrition_facts.sugars 50 100 %}%"></div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <div class="nutrient-bar-label">
+              <span data-translate="nutrient_fats">Fats</span>
+              <strong>{{ scan.nutrition_facts.fat|floatformat:1 }}g</strong>
+            </div>
+            <div class="progress progress-custom">
+              <div class="progress-bar bg-secondary" role="progressbar" style="width: {% widthratio scan.nutrition_facts.fat 40 100 %}%"></div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <div class="nutrient-bar-label">
+              <span data-translate="nutrient_proteins">Proteins</span>
+              <strong>{{ scan.nutrition_facts.proteins|floatformat:1 }}g</strong>
+            </div>
+            <div class="progress progress-custom">
+              <div class="progress-bar bg-success" role="progressbar" style="width: {% widthratio scan.nutrition_facts.proteins 30 100 %}%"></div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <div class="nutrient-bar-label">
+              <span data-translate="nutrient_salt">Salt</span>
+              <strong>{{ scan.nutrition_facts.salt|floatformat:2 }}g</strong>
+            </div>
+            <div class="progress progress-custom">
+              <div class="progress-bar {% if scan.nutrition_facts.salt > 1.5 %}bg-danger{% else %}bg-secondary{% endif %}" role="progressbar" style="width: {% widthratio scan.nutrition_facts.salt 5 100 %}%"></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Right Column: AI Health Assessment & Summary -->
+    <div class="col-lg-7">
+      <!-- Health Score Card -->
+      <div class="glass-card p-4 mb-4 d-flex align-items-center justify-content-between flex-wrap gap-3">
+        <div>
+          <h4 class="fw-bold mb-1">Health Score</h4>
+          <p class="text-muted mb-0 small">
+            <span data-translate="applied_goal_label">Analysis Mode</span>: 
+            <strong class="applied-goal-value" data-goal="{{ scan.applied_goal }}">{{ scan.applied_goal|title }}</strong>
+          </p>
+        </div>
+        <div class="score-circle {% if scan.risk_level == 'HEALTHY' %}healthy{% elif scan.risk_level == 'UNHEALTHY' %}unhealthy{% else %}moderate{% endif %}">
+          <span class="score-number">{{ scan.health_score|floatformat:1 }}</span>
+          <span class="score-label">/ 10</span>
+        </div>
+      </div>
+
+      <!-- Ingredients of concern -->
+      <div class="glass-card p-4 mb-4">
+        <h5 class="fw-bold mb-3">
+          <i class="fa-solid fa-triangle-exclamation text-danger me-2"></i>
+          <span data-translate="harmful_ingredients_title">Ingredients of Concern</span>
+        </h5>
+        
+        {% if scan.harmful_ingredients %}
+          <div class="d-flex flex-wrap gap-2">
+            {% for item in scan.harmful_ingredients %}
+              <span class="badge bg-danger-subtle text-danger px-3 py-2 fs-7 rounded-pill border border-danger-subtle">
+                {{ item }}
+              </span>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="alert alert-success border-0 bg-success-subtle text-success mb-0">
+            <i class="fa-solid fa-circle-check me-2"></i>
+            <span data-translate="safe_alert">No harmful ingredients flagged for your health goal!</span>
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Baymax assessment explanation -->
+      <div class="glass-card p-4 mb-4">
+        <h5 class="fw-bold mb-3 text-primary">
+          <i class="fa-solid fa-heart-pulse me-2"></i>
+          <span data-translate="ai_summary_title">Baymax's Assessment</span>
+        </h5>
+        <p class="mb-4 lh-lg text-secondary" style="font-size: 1.05rem;">
+          {{ scan.risk_explanation }}
+        </p>
+
+        <!-- Recommended frequency -->
+        <div class="p-3 bg-light rounded-4 d-flex justify-content-between align-items-center">
+          <span class="fw-semibold text-dark" data-translate="consumption_frequency_title">Recommended Frequency</span>
+          <span class="badge {% if scan.risk_level == 'HEALTHY' %}bg-success{% elif scan.risk_level == 'UNHEALTHY' %}bg-danger{% else %}bg-warning text-dark{% endif %} px-3 py-2 fw-bold fs-7">
+            {{ scan.consumption_frequency }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Healthier alternatives -->
+      <div class="glass-card p-4">
+        <h5 class="fw-bold mb-3">
+          <i class="fa-solid fa-arrows-spin text-success me-2"></i>
+          <span data-translate="alternatives_title">Healthier Alternatives</span>
+        </h5>
+        
+        <ul class="list-group list-group-flush">
+          {% for alternative in scan.alternatives %}
+            <li class="list-group-item bg-transparent px-0 py-3 d-flex align-items-center gap-3">
+              <div class="rounded-circle bg-success-subtle text-success d-flex justify-content-center align-items-center" style="width: 36px; height: 36px; min-width: 36px;">
+                <i class="fa-solid fa-circle-check" style="font-size: 1.1rem;"></i>
+              </div>
+              <span class="fw-semibold text-secondary" style="font-size: 1.02rem;">{{ alternative }}</span>
+            </li>
+          {% empty %}
+            <li class="list-group-item bg-transparent text-muted text-center py-3">
+              No specific alternatives suggested.
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% load static %}
+<script src="{% static 'js/app.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,132 @@
+{% extends 'healthscan/base.html' %}
+
+{% block content %}
+<div class="container">
+  
+  <div class="text-center mb-4">
+    <h2 class="fw-extrabold text-primary" data-translate="history_title">Product Scan History</h2>
+    <p class="text-muted" data-translate="history_subtitle">Review your previously scanned products and saved items.</p>
+  </div>
+
+  <!-- Tabs Navigation -->
+  <div class="d-flex justify-content-center mb-4">
+    <div class="nav nav-pills glass-card p-1 d-inline-flex border" id="history-tabs" role="tablist">
+      <button class="nav-link nav-link-custom py-2 px-4 active fw-bold" id="saved-tab" data-bs-toggle="pill" data-bs-target="#pane-saved" type="button" role="tab" data-translate="saved_tab">
+        Saved Products
+      </button>
+      <button class="nav-link nav-link-custom py-2 px-4 fw-bold" id="all-tab" data-bs-toggle="pill" data-bs-target="#pane-all" type="button" role="tab" data-translate="all_tab">
+        All Scan History
+      </button>
+    </div>
+  </div>
+
+  <!-- Tabs Content -->
+  <div class="tab-content" id="history-tabs-content">
+    
+    <!-- Saved Products Pane -->
+    <div class="tab-pane fade show active" id="pane-saved" role="tabpanel">
+      <div id="saved-list-container" class="row">
+        <!-- Will be loaded dynamically or pre-rendered via Django -->
+        {% if user.saved_products.all %}
+          {% for item in user.saved_products.all %}
+            <div class="col-md-6 col-lg-4 mb-4" id="saved-card-{{ item.barcode }}">
+              <div class="glass-card p-3 h-100 d-flex flex-column justify-content-between timeline-card {% if item.risk_level == 'HEALTHY' %}healthy{% elif item.risk_level == 'UNHEALTHY' %}unhealthy{% else %}moderate{% endif %}">
+                <div>
+                  <div class="d-flex align-items-center gap-3 mb-3">
+                    {% if item.image_url %}
+                      <img src="{{ item.image_url }}" alt="{{ item.product_name }}" class="rounded-3" style="width: 60px; height: 60px; object-fit: contain; background: white; border: 1px solid #eee;">
+                    {% else %}
+                      <div class="rounded-3 bg-light d-flex justify-content-center align-items-center" style="width: 60px; height: 60px;">
+                        <i class="fa-solid fa-bowl-food text-muted" style="font-size: 1.5rem;"></i>
+                      </div>
+                    {% endif %}
+                    <div class="min-w-0">
+                      <h6 class="mb-1 text-truncate fw-bold">{{ item.product_name|default:"Unknown Product" }}</h6>
+                      <small class="text-muted d-block text-truncate">{{ item.brand|default:"-" }}</small>
+                    </div>
+                  </div>
+                  
+                  <div class="d-flex justify-content-between align-items-center">
+                    <span class="badge {% if item.risk_level == 'HEALTHY' %}badge-healthy{% elif item.risk_level == 'UNHEALTHY' %}badge-unhealthy{% else %}badge-moderate{% endif %}">
+                      {{ item.risk_level|title }} ({{ item.health_score|floatformat:1 }}/10)
+                    </span>
+                    <small class="text-muted" style="font-size: 0.75rem;">Saved: {{ item.saved_at|date:"M d, Y" }}</small>
+                  </div>
+                </div>
+
+                <div class="d-flex gap-2 mt-3 pt-3 border-top">
+                  <a href="{% url 'results' item.barcode %}" class="btn btn-sm btn-outline-custom flex-grow-1">
+                    <i class="fa-solid fa-square-poll-vertical me-1"></i> Report
+                  </a>
+                  <button class="btn btn-sm btn-outline-danger btn-delete-saved" data-barcode="{{ item.barcode }}">
+                    <i class="fa-solid fa-trash-can"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class="col-12 text-center py-5">
+            <i class="fa-regular fa-star text-muted mb-3" style="font-size: 3rem;"></i>
+            <h5 class="fw-bold" data-translate="no_saved">No saved products. Click the star icon on results to save items.</h5>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- All Scan History Pane -->
+    <div class="tab-pane fade" id="pane-all" role="tabpanel">
+      <div class="row">
+        {% if scans %}
+          {% for scan in scans %}
+            <div class="col-md-6 col-lg-4 mb-4">
+              <div class="glass-card p-3 h-100 d-flex flex-column justify-content-between timeline-card {% if scan.risk_level == 'HEALTHY' %}healthy{% elif scan.risk_level == 'UNHEALTHY' %}unhealthy{% else %}moderate{% endif %}">
+                <div>
+                  <div class="d-flex align-items-center gap-3 mb-3">
+                    {% if scan.image_url %}
+                      <img src="{{ scan.image_url }}" alt="{{ scan.product_name }}" class="rounded-3" style="width: 60px; height: 60px; object-fit: contain; background: white; border: 1px solid #eee;">
+                    {% else %}
+                      <div class="rounded-3 bg-light d-flex justify-content-center align-items-center" style="width: 60px; height: 60px;">
+                        <i class="fa-solid fa-bowl-food text-muted" style="font-size: 1.5rem;"></i>
+                      </div>
+                    {% endif %}
+                    <div class="min-w-0">
+                      <h6 class="mb-1 text-truncate fw-bold">{{ scan.product_name|default:"Unknown Product" }}</h6>
+                      <small class="text-muted d-block text-truncate">{{ scan.brand|default:"-" }}</small>
+                    </div>
+                  </div>
+                  
+                  <div class="d-flex justify-content-between align-items-center">
+                    <span class="badge {% if scan.risk_level == 'HEALTHY' %}badge-healthy{% elif scan.risk_level == 'UNHEALTHY' %}badge-unhealthy{% else %}badge-moderate{% endif %}">
+                      {{ scan.risk_level|title }} ({{ scan.health_score|floatformat:1 }}/10)
+                    </span>
+                    <small class="text-muted" style="font-size: 0.75rem;">{{ scan.scanned_at|date:"M d, Y" }}</small>
+                  </div>
+                </div>
+
+                <div class="d-flex gap-2 mt-3 pt-3 border-top">
+                  <a href="{% url 'results' scan.barcode %}" class="btn btn-sm btn-primary-custom flex-grow-1">
+                    <i class="fa-solid fa-square-poll-vertical me-1"></i> View Report
+                  </a>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class="col-12 text-center py-5">
+            <i class="fa-solid fa-barcode text-muted mb-3" style="font-size: 3rem;"></i>
+            <h5 class="fw-bold" data-translate="no_history">No scan records found. Start scanning products!</h5>
+            <a href="{% url 'scanner' %}" class="btn btn-primary-custom mt-3" data-translate="btn_start_scan">Start Scanning</a>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% load static %}
+<script src="{% static 'js/app.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,414 @@
+/* Baymax HealthScan Custom Stylesheet */
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  --primary-color: #0288d1; /* Soothing sky blue */
+  --primary-light: #e1f5fe; /* Soft light blue background tint */
+  --secondary-color: #4fc3f7; /* Sky blue accent */
+  --accent-color: #81d4fa; /* Muted pastel blue */
+  
+  /* Health Colors (Soften to pastel shades for less eye irritation) */
+  --health-green: #4caf50;
+  --health-orange: #ff9800;
+  --health-red: #f44336;
+  
+  /* Neutral Palette (Light blue and sky blue comfort background) */
+  --bg-gradient-start: #e0f7fa; /* Very soft sky blue tint */
+  --bg-gradient-end: #e1f5fe; /* Soft sky blue */
+  --surface-card: rgba(224, 242, 254, 0.75); /* Translucent sky blue instead of white */
+  --border-color: rgba(2, 136, 209, 0.15);
+  --text-primary: #2c3e50; /* Charcoal text instead of harsh dark slate */
+  --text-secondary: #7f8c8d;
+
+  
+  --font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --border-radius-lg: 20px;
+  --border-radius-md: 12px;
+  --border-radius-sm: 8px;
+  
+  --box-shadow: 0 10px 30px rgba(2, 136, 209, 0.05);
+  --box-shadow-hover: 0 15px 35px rgba(2, 136, 209, 0.1);
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body {
+  font-family: var(--font-family);
+  background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+  background-attachment: fixed;
+  color: var(--text-primary);
+  min-height: 100vh;
+}
+
+/* Glassmorphism Cards */
+.glass-card {
+  background: var(--surface-card);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--box-shadow);
+  transition: var(--transition);
+  overflow: hidden;
+}
+
+.glass-card:hover {
+  box-shadow: var(--box-shadow-hover);
+  transform: translateY(-2px);
+}
+
+/* Navbar */
+.navbar-custom {
+  background: rgba(224, 242, 254, 0.85) !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border-color);
+  padding: 15px 0;
+}
+
+.navbar-brand-custom {
+  font-weight: 800;
+  color: var(--primary-color) !important;
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nav-link-custom {
+  font-weight: 500;
+  color: var(--text-secondary) !important;
+  padding: 8px 16px !important;
+  border-radius: var(--border-radius-sm);
+  transition: var(--transition);
+}
+
+.nav-link-custom:hover, .nav-link-custom.active {
+  color: var(--primary-color) !important;
+  background: var(--primary-light);
+}
+
+/* Buttons */
+.btn-primary-custom {
+  background: linear-gradient(135deg, var(--primary-color) 0%, #0056b3 100%);
+  border: none;
+  color: white;
+  padding: 10px 24px;
+  font-weight: 600;
+  border-radius: var(--border-radius-md);
+  box-shadow: 0 4px 15px rgba(0, 123, 255, 0.2);
+  transition: var(--transition);
+}
+
+.btn-primary-custom:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(0, 123, 255, 0.3);
+  color: white;
+}
+
+.btn-outline-custom {
+  border: 1.5px solid var(--primary-color);
+  color: var(--primary-color);
+  background: transparent;
+  padding: 10px 24px;
+  font-weight: 600;
+  border-radius: var(--border-radius-md);
+  transition: var(--transition);
+}
+
+.btn-outline-custom:hover {
+  background: var(--primary-light);
+  color: var(--primary-color);
+}
+
+/* Score Ring */
+.score-circle {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  position: relative;
+  border: 6px solid var(--primary-light);
+}
+
+.score-circle.healthy {
+  border-color: var(--health-green);
+}
+.score-circle.moderate {
+  border-color: var(--health-orange);
+}
+.score-circle.unhealthy {
+  border-color: var(--health-red);
+}
+
+.score-number {
+  font-size: 2.2rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.score-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+/* Badge Customizations */
+.badge-healthy {
+  background-color: rgba(46, 204, 113, 0.15) !important;
+  color: var(--health-green) !important;
+  border: 1px solid rgba(46, 204, 113, 0.3);
+}
+
+.badge-moderate {
+  background-color: rgba(243, 156, 18, 0.15) !important;
+  color: var(--health-orange) !important;
+  border: 1px solid rgba(243, 156, 18, 0.3);
+}
+
+.badge-unhealthy {
+  background-color: rgba(231, 76, 60, 0.15) !important;
+  color: var(--health-red) !important;
+  border: 1px solid rgba(231, 76, 60, 0.3);
+}
+
+/* Barcode Scanner Feed styling */
+#interactive {
+  width: 100%;
+  max-width: 500px;
+  aspect-ratio: 4/3;
+  margin: 0 auto;
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+  position: relative;
+  background-color: #000;
+  border: 4px solid var(--primary-light);
+}
+
+.scanner-laser {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background-color: var(--primary-color);
+  box-shadow: 0 0 15px var(--accent-color);
+  animation: scanMotion 3s infinite linear;
+  z-index: 10;
+}
+
+@keyframes scanMotion {
+  0% { top: 0%; }
+  50% { top: 100%; }
+  100% { top: 0%; }
+}
+
+/* Micro-animations */
+.pulse-baymax {
+  animation: baymaxPulse 3.5s infinite ease-in-out;
+  cursor: pointer;
+}
+
+@keyframes baymaxPulse {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+/* Movie-Style On-Load Inflation Animation */
+.baymax-robot {
+  transform-origin: 50px 95px; /* scale from base bottom */
+  animation: baymaxInflateFromBox 2.5s cubic-bezier(0.175, 0.885, 0.32, 1.2) forwards;
+}
+
+@keyframes baymaxInflateFromBox {
+  0% {
+    transform: scale(0) translateY(45px);
+    opacity: 0;
+  }
+  30% {
+    transform: scale(0.1) translateY(40px);
+    opacity: 0.8;
+  }
+  /* Bouncy, squeaky inflation scale */
+  75% {
+    transform: scale(1.08) translateY(-5px);
+  }
+  90% {
+    transform: scale(0.96) translateY(2px);
+  }
+  100% {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Charging Indicator blinking light */
+.charging-led {
+  animation: chargingBlink 1.5s infinite alternate;
+}
+
+@keyframes chargingBlink {
+  0% { opacity: 0.35; }
+  100% { opacity: 1; }
+}
+
+/* Eye Blinking Animation */
+.left-eye {
+  transform-origin: 40px 32px; /* Center of left eye */
+  animation: baymaxBlink 5s infinite ease-in-out;
+}
+
+.right-eye {
+  transform-origin: 60px 32px; /* Center of right eye */
+  animation: baymaxBlink 5s infinite ease-in-out;
+}
+
+@keyframes baymaxBlink {
+  0%, 48%, 52%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(0.05); }
+}
+
+/* Arm Waving Animation */
+.left-arm {
+  transform-origin: 22px 56px; /* Shoulder joint */
+  animation: baymaxSlowBreathLeft 3.5s infinite ease-in-out;
+  transition: var(--transition);
+}
+
+.right-arm {
+  transform-origin: 78px 56px; /* Shoulder joint */
+  animation: baymaxSlowBreathRight 3.5s infinite ease-in-out;
+  transition: var(--transition);
+}
+
+@keyframes baymaxSlowBreathLeft {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(2deg); }
+}
+
+@keyframes baymaxSlowBreathRight {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(-2deg); }
+}
+
+/* Hover Interactive Waving Arm */
+.pulse-baymax:hover .left-arm {
+  animation: baymaxWaveLeft 0.8s infinite ease-in-out;
+}
+
+@keyframes baymaxWaveLeft {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(28deg); }
+}
+
+/* Nutrients Progress Bars */
+.nutrient-bar-label {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.progress-custom {
+  height: 8px;
+  border-radius: 4px;
+  background-color: #e2e8f0;
+}
+
+/* Landing Hero Section */
+.hero-section {
+  padding: 80px 0;
+  position: relative;
+}
+
+.hero-title {
+  font-size: 3.5rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.hero-subtitle {
+  font-size: 1.25rem;
+  color: var(--text-secondary);
+  margin-bottom: 30px;
+}
+
+.hero-image-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.hero-blob {
+  position: absolute;
+  width: 350px;
+  height: 350px;
+  background: radial-gradient(circle, rgba(0,123,255,0.15) 0%, rgba(23,162,184,0.05) 100%);
+  border-radius: 50%;
+  filter: blur(40px);
+  z-index: -1;
+}
+
+/* Timeline Cards */
+.timeline-card {
+  border-left: 4px solid var(--primary-color);
+  border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0 !important;
+}
+
+.timeline-card.healthy {
+  border-left-color: var(--health-green);
+}
+.timeline-card.moderate {
+  border-left-color: var(--health-orange);
+}
+.timeline-card.unhealthy {
+  border-left-color: var(--health-red);
+}
+
+/* Translation toggle indicator styling */
+.language-selector {
+  border-radius: var(--border-radius-sm);
+  background: var(--primary-light);
+  border: 1px solid var(--border-color);
+  padding: 4px 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--primary-color);
+}
+
+/* General Footer Styling */
+footer {
+  border-top: 1px solid var(--border-color);
+  background-color: rgba(224, 242, 254, 0.4);
+  backdrop-filter: blur(5px);
+  font-weight: 500;
+}
+
+/* Eye-Friendly Form and Helper Overrides (Reducing plain white backgrounds) */
+.form-control, .form-select, .input-group-text {
+  background-color: rgba(225, 245, 254, 0.8) !important;
+  color: var(--text-primary) !important;
+  border-color: rgba(2, 136, 209, 0.2) !important;
+}
+
+.form-control::placeholder {
+  color: #7f8c8d !important;
+}
+
+/* Override plain white helper classes to use a soft sky-blue tint */
+.bg-white {
+  background-color: rgba(225, 245, 254, 0.9) !important;
+  border-color: rgba(2, 136, 209, 0.15) !important;
+}
+
+/* Results circular score inner circle background */
+.score-circle {
+  background: rgba(224, 242, 254, 0.95) !important;
+}

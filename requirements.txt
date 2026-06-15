@@ -1,0 +1,5 @@
+django>=4.2,<5.1
+djangorestframework>=3.14.0
+google-generativeai>=0.3.0
+django-environ>=0.11.0
+requests>=2.31.0

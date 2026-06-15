@@ -1,0 +1,256 @@
+{% extends 'healthscan/base.html' %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="row">
+    <!-- Left Column: User Info & Settings -->
+    <div class="col-lg-4 mb-4">
+      
+      <!-- User Info Card -->
+      <div class="glass-card p-4 mb-4 text-center">
+        <div class="mb-3 d-inline-block p-1 bg-white rounded-circle border shadow-sm" style="width: 100px; height: 100px;">
+          <!-- Baymax-like avatar or a neat user icon -->
+          <svg viewBox="0 0 100 100" width="100%" height="100%">
+            <!-- Head -->
+            <ellipse cx="50" cy="50" rx="35" ry="25" fill="#f8fafd" stroke="#e2e8f0" stroke-width="2"/>
+            <!-- Left Eye -->
+            <circle cx="38" cy="50" r="3.5" fill="#2d3748"/>
+            <!-- Right Eye -->
+            <circle cx="62" cy="50" r="3.5" fill="#2d3748"/>
+            <!-- Line connecting eyes -->
+            <line x1="38" y1="50" x2="62" y2="50" stroke="#2d3748" stroke-width="1.5"/>
+          </svg>
+        </div>
+        
+        <h4 class="fw-bold mb-1" data-translate="user_info_title">User Information</h4>
+        <div class="text-start mt-3 border-top pt-3">
+          <div class="mb-2">
+            <span class="text-muted small d-block" data-translate="username_label">Username</span>
+            <strong class="text-dark">{{ profile.user.username }}</strong>
+          </div>
+          <div class="mb-2">
+            <span class="text-muted small d-block" data-translate="email_label">Email</span>
+            <strong class="text-dark">{{ profile.user.email|default:"N/A" }}</strong>
+          </div>
+          <div class="mb-0">
+            <span class="text-muted small d-block" data-translate="joined_label">Member Since</span>
+            <strong class="text-dark">{{ profile.user.date_joined|date:"M d, Y" }}</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Preferences & Settings Card -->
+      <div class="glass-card p-4">
+        <h5 class="fw-bold mb-3" data-translate="nav_settings">Profile Preferences</h5>
+        
+        <div id="settings-alert" class="alert alert-success border-0 bg-success-subtle text-success py-2 rounded-3 mb-4" style="display: none;">
+          <i class="fa-solid fa-circle-check me-2"></i>
+          <span data-translate="settings_success">Profile updated successfully!</span>
+        </div>
+
+        <form id="profile-settings-form">
+          {% csrf_token %}
+          
+          <!-- Health Goal Selection -->
+          <div class="mb-4">
+            <label for="health-goal-select" class="form-label fw-bold small" data-translate="goal_label">Health Goal</label>
+            <div class="input-group">
+              <span class="input-group-text bg-white border-end-0 border-primary-subtle"><i class="fa-solid fa-user-doctor text-primary"></i></span>
+              <select class="form-select border-start-0 border-primary-subtle" id="health-goal-select" name="health_goal">
+                {% for code, label in goals %}
+                  <option value="{{ code }}" {% if profile.health_goal == code %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+
+          <!-- Language Selection -->
+          <div class="mb-4">
+            <label for="preferred-language-select" class="form-label fw-bold small" data-translate="lang_label">Preferred Language</label>
+            <div class="input-group">
+              <span class="input-group-text bg-white border-end-0 border-primary-subtle"><i class="fa-solid fa-language text-primary"></i></span>
+              <select class="form-select border-start-0 border-primary-subtle" id="preferred-language-select" name="preferred_language">
+                {% for code, label in languages %}
+                  <option value="{{ code }}" {% if profile.preferred_language == code %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary-custom w-100 py-2 fw-bold" data-translate="btn_save_settings">
+            Save Changes
+          </button>
+        </form>
+      </div>
+
+    </div>
+
+    <!-- Right Column: Baymax Health Report Dashboard -->
+    <div class="col-lg-8">
+      
+      <div class="glass-card p-4 mb-4">
+        <div class="d-flex align-items-center gap-3 mb-4">
+          <div class="rounded-circle bg-primary-subtle text-primary d-flex justify-content-center align-items-center" style="width: 54px; height: 54px; min-width: 54px;">
+            <i class="fa-solid fa-stethoscope" style="font-size: 1.7rem;"></i>
+          </div>
+          <div>
+            <h3 class="fw-extrabold text-primary mb-1" data-translate="health_report_title">🩺 Baymax Health Report</h3>
+            <p class="text-muted mb-0 small" data-translate="health_report_desc">This section provides personalized health insights based ONLY on products that the user has marked as purchased.</p>
+          </div>
+        </div>
+
+        {% if total_products > 0 %}
+          <!-- Stats Grid -->
+          <div class="row g-3 mb-4">
+            <div class="col-sm-6">
+              <div class="p-3 rounded-4 bg-white border text-center h-100 shadow-sm">
+                <span class="text-muted small fw-bold d-block text-uppercase mb-2" data-translate="avg_diet_score">Average Health Score</span>
+                <div class="d-flex align-items-center justify-content-center gap-2">
+                  <span class="fs-1 fw-extrabold {% if avg_score >= 7 %}text-success{% elif avg_score < 4 %}text-danger{% else %}text-warning{% endif %}">{{ avg_score }}</span>
+                  <span class="text-muted fs-5">/ 10</span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="col-sm-6">
+              <div class="p-3 rounded-4 bg-white border text-center h-100 shadow-sm">
+                <span class="text-muted small fw-bold d-block text-uppercase mb-2" data-translate="total_logged">Total Products Consumed</span>
+                <span class="fs-1 fw-extrabold text-primary">{{ total_products }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Consumption Breakdown -->
+          <div class="p-3 rounded-4 bg-white border mb-4 shadow-sm">
+            <h6 class="fw-bold text-dark mb-3" data-translate="diet_balance">Consumption Breakdown</h6>
+            
+            <!-- Compound Progress Bar -->
+            <div class="progress mb-3" style="height: 25px; border-radius: 12px;">
+              {% if healthy_count > 0 %}
+                <div class="progress-bar bg-success fw-bold" role="progressbar" style="width: {% widthratio healthy_count total_products 100 %}%">
+                  {{ healthy_count }}
+                </div>
+              {% endif %}
+              {% if moderate_count > 0 %}
+                <div class="progress-bar bg-warning text-dark fw-bold" role="progressbar" style="width: {% widthratio moderate_count total_products 100 %}%">
+                  {{ moderate_count }}
+                </div>
+              {% endif %}
+              {% if unhealthy_count > 0 %}
+                <div class="progress-bar bg-danger fw-bold" role="progressbar" style="width: {% widthratio unhealthy_count total_products 100 %}%">
+                  {{ unhealthy_count }}
+                </div>
+              {% endif %}
+            </div>
+            
+            <!-- Color legend -->
+            <div class="d-flex justify-content-around flex-wrap mt-2 gap-2">
+              <span class="badge badge-healthy px-3 py-1.5 fs-7"><span data-translate="HEALTHY">Healthy</span>: {{ healthy_count }}</span>
+              <span class="badge badge-moderate px-3 py-1.5 fs-7"><span data-translate="MODERATE">Moderate</span>: {{ moderate_count }}</span>
+              <span class="badge badge-unhealthy px-3 py-1.5 fs-7"><span data-translate="UNHEALTHY">Unhealthy</span>: {{ unhealthy_count }}</span>
+            </div>
+          </div>
+
+          <!-- Frequently Consumed Harmful Ingredients -->
+          <div class="p-3 rounded-4 bg-white border mb-4 shadow-sm">
+            <h6 class="fw-bold text-danger mb-3">
+              <i class="fa-solid fa-triangle-exclamation me-1"></i>
+              <span data-translate="top_harmful_title">Most Frequently Consumed Harmful Ingredients</span>
+            </h6>
+            
+            {% if top_harmful %}
+              <div class="d-flex flex-wrap gap-2">
+                {% for ing in top_harmful %}
+                  <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-2 rounded-pill fs-7">
+                    {{ ing.name }} <strong class="ms-1 bg-danger text-white rounded-circle d-inline-flex justify-content-center align-items-center" style="width: 20px; height: 20px; font-size: 0.75rem;">{{ ing.count }}</strong>
+                  </span>
+                {% endfor %}
+              </div>
+            {% else %}
+              <div class="alert alert-success border-0 bg-success-subtle text-success py-2 rounded-3 mb-0">
+                <i class="fa-solid fa-circle-check me-2"></i>
+                <span data-translate="safe_alert">No harmful ingredients flagged for your health goal!</span>
+              </div>
+            {% endif %}
+          </div>
+
+          <!-- Eating Pattern Analysis -->
+          <div class="p-3 rounded-4 bg-white border mb-4 shadow-sm">
+            <h6 class="fw-bold text-primary mb-3">
+              <i class="fa-solid fa-heart-pulse me-1"></i>
+              <span data-translate="eating_pattern_title">Eating Pattern Analysis</span>
+            </h6>
+            <p class="mb-0 text-secondary lh-lg" style="font-size: 0.98rem;">
+              {{ diet_analysis }}
+            </p>
+          </div>
+
+          <!-- Recommendations -->
+          <div class="p-3 rounded-4 bg-white border shadow-sm">
+            <h6 class="fw-bold text-success mb-3">
+              <i class="fa-solid fa-circle-check me-1"></i>
+              <span data-translate="recommendations_title">Personalized Recommendations</span>
+            </h6>
+            <ul class="list-group list-group-flush">
+              {% for rec in diet_recommendations %}
+                <li class="list-group-item bg-transparent px-0 py-2 border-0 d-flex align-items-center gap-2 text-secondary">
+                  <i class="fa-solid fa-chevron-right text-success" style="font-size: 0.85rem;"></i>
+                  <span>{{ rec }}</span>
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
+
+        {% else %}
+          <!-- No History Placeholder -->
+          <div class="text-center py-5">
+            <i class="fa-regular fa-clipboard text-muted mb-3" style="font-size: 3rem;"></i>
+            <h5 class="fw-bold text-secondary mb-2" data-translate="no_history">No purchase history logged.</h5>
+            <p class="text-muted small mx-auto" style="max-width: 400px;">
+              Scan product barcodes and confirm you bought them to populate your health report dashboard!
+            </p>
+            <a href="{% url 'scanner' %}" class="btn btn-primary-custom btn-sm fw-bold px-4 py-2 mt-2" data-translate="btn_start_scan">
+              Start Scanning
+            </a>
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Logout Button (Outlined Red, Bottom of Profile) -->
+      <div class="text-center mt-5 mb-4">
+        <button type="button" class="btn btn-outline-danger w-100 py-3 fw-bold border-2" data-bs-toggle="modal" data-bs-target="#logoutModal" data-translate="logout_btn">
+          <i class="fa-solid fa-arrow-right-from-bracket me-2"></i> Logout
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Logout Confirmation Modal -->
+<div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 glass-card">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title fw-bold text-danger" id="logoutModalLabel" data-translate="logout_confirm_title">Confirm Logout</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body py-4">
+        <p class="mb-0 text-dark" data-translate="logout_confirm_msg" style="font-size: 1.1rem;">Are you sure you want to log out?</p>
+      </div>
+      <div class="modal-footer border-0 pt-0">
+        <button type="button" class="btn btn-secondary px-4 py-2 fw-semibold rounded-3" data-bs-dismiss="modal" data-translate="btn_cancel">Cancel</button>
+        <form action="{% url 'logout' %}" method="post" class="d-inline">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger px-4 py-2 fw-bold rounded-3" data-translate="btn_logout">Logout</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% load static %}
+<script src="{% static 'js/app.js' %}"></script>
+{% endblock %}

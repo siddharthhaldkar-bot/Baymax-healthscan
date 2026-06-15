@@ -1,0 +1,68 @@
+{% extends 'healthscan/base.html' %}
+
+{% block content %}
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+      
+      <div class="text-center mb-4">
+        <h2 class="fw-extrabold text-primary" data-translate="scanner_title">Scan Food Product</h2>
+        <p class="text-muted" data-translate="scanner_subtitle">Point your device camera at a product barcode, or enter it manually below.</p>
+      </div>
+
+      <!-- Scanner Display Card -->
+      <div class="glass-card p-4 mb-4">
+        <!-- Interactive Camera Viewport -->
+        <div id="interactive" class="position-relative">
+          <div class="scanner-laser" id="laser" style="display: none;"></div>
+          <div id="reader" style="width: 100%; border: none;"></div>
+        </div>
+
+        <div class="d-flex justify-content-between mt-3 gap-2">
+          <button id="btn-toggle-camera" class="btn btn-primary-custom flex-grow-1" data-translate="btn_start_camera">
+            <i class="fa-solid fa-camera me-1"></i> Start Camera
+          </button>
+        </div>
+      </div>
+
+      <!-- Manual Input Fallback -->
+      <div class="glass-card p-4">
+        <h5 class="fw-bold mb-3" data-translate="manual_entry">Manual Barcode Entry</h5>
+        
+        <form id="manual-scan-form" class="row g-2">
+          {% csrf_token %}
+          <div class="col-sm-9">
+            <div class="input-group">
+              <span class="input-group-text bg-white border-end-0 border-primary-subtle"><i class="fa-solid fa-barcode text-secondary"></i></span>
+              <input type="text" id="manual-barcode" name="barcode" class="form-control border-start-0 border-primary-subtle" placeholder="Enter 13-digit barcode (e.g., 3017620422003)" required>
+            </div>
+          </div>
+          <div class="col-sm-3">
+            <button type="submit" class="btn btn-outline-custom w-100 fw-bold px-0" data-translate="btn_analyze">
+              Analyze
+            </button>
+          </div>
+        </form>
+        <div id="error-message" class="text-danger mt-2 fw-semibold" style="display: none;"></div>
+      </div>
+
+      <!-- Processing/Loading Modal/State -->
+      <div id="scan-loading" class="text-center mt-4 glass-card p-4" style="display: none;">
+        <div class="spinner-border text-primary mb-3" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        <h5 class="fw-bold text-primary mb-1" data-translate="scanning_progress">Searching database & generating AI analysis...</h5>
+        <p class="text-muted mb-0" id="loading-barcode-label"></p>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- html5-qrcode CDN -->
+<script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+{% load static %}
+<script src="{% static 'js/scanner.js' %}"></script>
+{% endblock %}

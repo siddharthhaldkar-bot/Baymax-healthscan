@@ -1,0 +1,298 @@
+{% extends 'healthscan/base.html' %}
+
+{% block content %}
+<div class="container">
+  
+  <!-- Hero Section -->
+  <div class="row align-items-center hero-section">
+    <div class="col-lg-6 mb-5 mb-lg-0">
+      <h1 class="hero-title mb-3 text-primary" data-translate="hero_title">
+        I am Baymax, your Food Health Companion
+      </h1>
+      <p class="hero-subtitle mb-4" data-translate="hero_subtitle">
+        Scan barcodes of any food product to instantly analyze ingredients, nutritional values, and get personalized AI health alerts.
+      </p>
+      
+      <div class="d-flex gap-3 flex-wrap">
+        {% if user.is_authenticated %}
+          <a href="{% url 'scanner' %}" class="btn btn-primary-custom btn-lg px-4 py-3" data-translate="btn_start_scan">Start Scanning</a>
+          <a href="{% url 'settings' %}" class="btn btn-outline-custom btn-lg px-4 py-3" data-translate="btn_configure_profile">Configure Profile</a>
+        {% else %}
+          <a href="{% url 'register' %}" class="btn btn-primary-custom btn-lg px-5 py-3" data-translate="btn_register">Register Now</a>
+          <a href="{% url 'login' %}" class="btn btn-outline-custom btn-lg px-5 py-3" data-translate="nav_login">Login</a>
+        {% endif %}
+      </div>
+    </div>
+    <div class="col-lg-6 hero-image-container">
+      <div class="hero-blob"></div>
+      <!-- Premium CSS Baymax Art -->
+      <svg class="pulse-baymax" width="280" height="280" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <!-- 3D Shading for Head -->
+          <radialGradient id="headGrad" cx="50%" cy="30%" r="50%" fx="40%" fy="30%">
+            <stop offset="0%" stop-color="#ffffff" />
+            <stop offset="70%" stop-color="#f5f9fd" />
+            <stop offset="100%" stop-color="#d0dfef" />
+          </radialGradient>
+
+          <!-- 3D Shading for Body (Inflated Balloon look) -->
+          <radialGradient id="bodyGrad" cx="50%" cy="45%" r="55%" fx="45%" fy="30%">
+            <stop offset="0%" stop-color="#ffffff" />
+            <stop offset="65%" stop-color="#f5f9fd" />
+            <stop offset="100%" stop-color="#cbdcf0" />
+          </radialGradient>
+
+          <!-- 3D Shading for Arms -->
+          <linearGradient id="leftArmGrad" x1="100%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#ffffff" />
+            <stop offset="60%" stop-color="#f5f9fd" />
+            <stop offset="100%" stop-color="#c5d9ed" />
+          </linearGradient>
+          <linearGradient id="rightArmGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#ffffff" />
+            <stop offset="60%" stop-color="#f5f9fd" />
+            <stop offset="100%" stop-color="#c5d9ed" />
+          </linearGradient>
+
+          <!-- Depth Drop Shadow Filters -->
+          <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="0" dy="4" stdDeviation="3" flood-color="#0288d1" flood-opacity="0.12" />
+          </filter>
+          <filter id="armShadow" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="0" dy="2.5" stdDeviation="1.8" flood-color="#2c3e50" flood-opacity="0.18" />
+          </filter>
+        </defs>
+
+        <!-- Baymax Robot Group (3D Shaded) -->
+        <g class="baymax-robot" filter="url(#softShadow)">
+          <!-- Body -->
+          <path d="M 20 95 C 20 45, 80 45, 80 95 Z" fill="url(#bodyGrad)" stroke="#b5ccdf" stroke-width="0.5" />
+          
+          <!-- Left Arm -->
+          <path class="baymax-arm left-arm" d="M 22 56 C 10 63, 6 76, 12 86 C 15 90, 21 84, 23 72 Z" fill="url(#leftArmGrad)" stroke="#b5ccdf" stroke-width="0.5" filter="url(#armShadow)" />
+          
+          <!-- Right Arm -->
+          <path class="baymax-arm right-arm" d="M 78 56 C 90 63, 94 76, 88 86 C 85 90, 79 84, 77 72 Z" fill="url(#rightArmGrad)" stroke="#b5ccdf" stroke-width="0.5" filter="url(#armShadow)" />
+          
+          <!-- Head -->
+          <ellipse cx="50" cy="32" rx="22" ry="15" fill="url(#headGrad)" stroke="#b5ccdf" stroke-width="0.5" filter="url(#armShadow)" />
+          
+          <!-- Left Eye -->
+          <circle class="baymax-eye left-eye" cx="40" cy="32" r="2.5" fill="#1e293b" />
+          <!-- Right Eye -->
+          <circle class="baymax-eye right-eye" cx="60" cy="32" r="2.5" fill="#1e293b" />
+          <!-- Eye Link Line -->
+          <line x1="40" y1="32" x2="60" y2="32" stroke="#1e293b" stroke-width="0.8" />
+          
+          <!-- Heart/Health Emblem -->
+          <path d="M 50 58 C 50 58, 47 54, 43 54 C 39 54, 37 57, 37 60 C 37 65, 50 71, 50 71 C 50 71, 63 65, 63 60 C 63 57, 61 54, 57 54 C 53 54, 50 58, 50 58 Z" fill="#0288d1" opacity="0.9" />
+        </g>
+      </svg>
+    </div>
+  </div>
+
+  {% if user.is_authenticated %}
+    <!-- Dashboard Stats (For logged in users) -->
+    <div class="row mb-5 mt-4">
+      <div class="col-md-6 col-lg-4 mb-4">
+        <div class="glass-card p-4 d-flex align-items-center gap-3">
+          <div class="rounded-circle bg-primary-light d-flex justify-content-center align-items-center" style="width: 60px; height: 60px;">
+            <i class="fa-solid fa-barcode text-primary" style="font-size: 1.5rem;"></i>
+          </div>
+          <div>
+            <h4 class="mb-0 fw-bold">{{ scan_count }}</h4>
+            <p class="text-muted mb-0" data-translate="recent_scans_title">Scanned Products</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-6 col-lg-4 mb-4">
+        <div class="glass-card p-4 d-flex align-items-center gap-3">
+          <div class="rounded-circle bg-primary-light d-flex justify-content-center align-items-center" style="width: 60px; height: 60px;">
+            <i class="fa-solid fa-star text-warning" style="font-size: 1.5rem;"></i>
+          </div>
+          <div>
+            <h4 class="mb-0 fw-bold">{{ saved_count }}</h4>
+            <p class="text-muted mb-0" data-translate="saved_items_title">Saved Items</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-12 col-lg-4 mb-4">
+        <div class="glass-card p-4 d-flex align-items-center gap-3">
+          <div class="rounded-circle bg-primary-light d-flex justify-content-center align-items-center" style="width: 60px; height: 60px;">
+            <i class="fa-solid fa-user-doctor text-info" style="font-size: 1.5rem;"></i>
+          </div>
+          <div>
+            <h4 class="mb-0 fw-bold text-truncate">{{ profile.get_health_goal_display }}</h4>
+            <p class="text-muted mb-0" data-translate="goal_label">Personalized Goal</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Scans / Quick Navigation -->
+    {% if recent_scans %}
+      <div class="mb-5">
+        <h3 class="fw-bold mb-4" data-translate="recent_scans_title">Recent Scans</h3>
+        <div class="row">
+          {% for scan in recent_scans %}
+            <div class="col-md-4 mb-3">
+              <div class="glass-card p-3 timeline-card {% if scan.risk_level == 'HEALTHY' %}healthy{% elif scan.risk_level == 'UNHEALTHY' %}unhealthy{% else %}moderate{% endif %}">
+                <div class="d-flex align-items-center gap-3">
+                  {% if scan.image_url %}
+                    <img src="{{ scan.image_url }}" alt="{{ scan.product_name }}" class="rounded-3" style="width: 55px; height: 55px; object-fit: contain; background: white;">
+                  {% else %}
+                    <div class="rounded-3 bg-light d-flex justify-content-center align-items-center" style="width: 55px; height: 55px;">
+                      <i class="fa-solid fa-bowl-food text-muted"></i>
+                    </div>
+                  {% endif %}
+                  <div class="flex-grow-1 min-w-0">
+                    <h6 class="mb-1 text-truncate fw-bold">{{ scan.product_name|default:"Unknown Product" }}</h6>
+                    <small class="text-muted d-block text-truncate">{{ scan.brand|default:"-" }}</small>
+                    <span class="badge {% if scan.risk_level == 'HEALTHY' %}badge-healthy{% elif scan.risk_level == 'UNHEALTHY' %}badge-unhealthy{% else %}badge-moderate{% endif %} mt-1 px-2 py-1" style="font-size: 0.7rem;">
+                      Score: {{ scan.health_score|floatformat:1 }}/10
+                    </span>
+                  </div>
+                  <a href="{% url 'results' scan.barcode %}" class="btn btn-sm btn-primary-custom rounded-circle p-2 d-flex justify-content-center align-items-center" style="width: 32px; height: 32px;">
+                    <i class="fa-solid fa-chevron-right" style="font-size: 0.8rem;"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+  {% endif %}
+
+  <!-- Core Features Section -->
+  <div class="py-5">
+    <h2 class="text-center fw-bold mb-5" data-translate="section_features">Core Features</h2>
+    <div class="row">
+      <div class="col-md-4 mb-4">
+        <div class="glass-card p-4 h-100 text-center">
+          <div class="rounded-circle bg-primary-light d-flex justify-content-center align-items-center mx-auto mb-4" style="width: 70px; height: 70px;">
+            <i class="fa-solid fa-camera text-primary" style="font-size: 1.8rem;"></i>
+          </div>
+          <h4 class="fw-bold mb-2" data-translate="feature_scan">Camera Scanner</h4>
+          <p class="text-muted" data-translate="feature_scan_desc">Scan barcodes using your camera or enter them manually.</p>
+        </div>
+      </div>
+      
+      <div class="col-md-4 mb-4">
+        <div class="glass-card p-4 h-100 text-center">
+          <div class="rounded-circle bg-primary-light d-flex justify-content-center align-items-center mx-auto mb-4" style="width: 70px; height: 70px;">
+            <i class="fa-solid fa-brain text-primary" style="font-size: 1.8rem;"></i>
+          </div>
+          <h4 class="fw-bold mb-2" data-translate="feature_analyze">AI Ingredient Analysis</h4>
+          <p class="text-muted" data-translate="feature_analyze_desc">Get personalized alerts about harmful substances tailored to your health goals.</p>
+        </div>
+      </div>
+
+      <div class="col-md-4 mb-4">
+        <div class="glass-card p-4 h-100 text-center">
+          <div class="rounded-circle bg-primary-light d-flex justify-content-center align-items-center mx-auto mb-4" style="width: 70px; height: 70px;">
+            <i class="fa-solid fa-sliders text-primary" style="font-size: 1.8rem;"></i>
+          </div>
+          <h4 class="fw-bold mb-2" data-translate="feature_goals">Goal Tracking</h4>
+          <p class="text-muted" data-translate="feature_goals_desc">Optimize food selection for Weight Loss, Diabetes, or Muscle Gain.</p>
+        </div>
+      </div>
+  </div>
+
+  <!-- Onboarding Modal (Starts if profile is not completed) -->
+  {% if user.is_authenticated and not profile.onboarding_completed %}
+  <div class="modal fade" id="onboardingModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="onboardingModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content glass-card border-0 shadow-lg">
+        <div class="modal-header border-0 bg-primary-light p-4">
+          <h5 class="modal-title fw-bold text-primary" id="onboardingModalLabel">
+            <i class="fa-solid fa-heart-pulse pulse-baymax me-2"></i> Hello! I am Baymax
+          </h5>
+        </div>
+        <div class="modal-body p-4">
+          <p class="text-secondary mb-4">
+            I am your personal food safety companion. To start helping you make healthy food choices, please select your health goal and preferred language.
+          </p>
+          
+          <form id="onboarding-form">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label for="onboard-goal" class="form-label fw-bold">Select Health Goal</label>
+              <select class="form-select border-primary-subtle" id="onboard-goal" required>
+                <option value="GENERAL">General Health</option>
+                <option value="WEIGHT_LOSS">Weight Loss</option>
+                <option value="MUSCLE_GAIN">Muscle Gain</option>
+                <option value="DIABETES">Diabetes-Friendly</option>
+              </select>
+            </div>
+            
+            <div class="mb-4">
+              <label for="onboard-lang" class="form-label fw-bold">Select Language</label>
+              <select class="form-select border-primary-subtle" id="onboard-lang" required>
+                <option value="en">English</option>
+                <option value="hi">Hindi (हिन्दी)</option>
+                <option value="mr">Marathi (मराठी)</option>
+              </select>
+            </div>
+            
+            <button type="submit" class="btn btn-primary-custom w-100 py-3 fw-bold">
+              Save & Get Started
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% if user.is_authenticated and not profile.onboarding_completed %}
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const modalEl = document.getElementById('onboardingModal');
+    if (modalEl) {
+      const myModal = new bootstrap.Modal(modalEl);
+      myModal.show();
+
+      const onboardingForm = document.getElementById('onboarding-form');
+      onboardingForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const goal = document.getElementById('onboard-goal').value;
+        const lang = document.getElementById('onboard-lang').value;
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        fetch('/api/profile/', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
+          },
+          body: JSON.stringify({
+            health_goal: goal,
+            preferred_language: lang,
+            onboarding_completed: true
+          })
+        })
+        .then(response => {
+          if (!response.ok) throw new Error("Failed to save onboarding");
+          return response.json();
+        })
+        .then(data => {
+          myModal.hide();
+          window.location.reload(); // reload to apply selected language
+        })
+        .catch(err => {
+          console.error(err);
+          alert("Error setting up profile.");
+        });
+      });
+    }
+  });
+</script>
+{% endif %}
+{% endblock %}

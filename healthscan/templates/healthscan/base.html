@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Baymax HealthScan - Food AI Companion</title>
+  
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Custom CSS -->
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg navbar-custom sticky-top">
+    <div class="container">
+      <a class="navbar-brand navbar-brand-custom" href="{% url 'landing' %}">
+        <i class="fa-solid fa-heart-pulse pulse-baymax"></i>
+        <span>Baymax HealthScan</span>
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto align-items-center">
+          <li class="nav-item">
+            <a class="nav-link nav-link-custom {% if request.resolver_match.url_name == 'landing' %}active{% endif %}" href="{% url 'landing' %}" data-translate="nav_home">Home</a>
+          </li>
+          {% if user.is_authenticated %}
+            <li class="nav-item">
+              <a class="nav-link nav-link-custom {% if request.resolver_match.url_name == 'scanner' %}active{% endif %}" href="{% url 'scanner' %}" data-translate="nav_scan">Scan Barcode</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link nav-link-custom {% if request.resolver_match.url_name == 'settings' %}active{% endif %}" href="{% url 'settings' %}" data-translate="nav_settings">Profile</a>
+            </li>
+          {% else %}
+            <li class="nav-item">
+              <a class="nav-link nav-link-custom fw-semibold text-primary" href="{% url 'login' %}" data-translate="nav_login">Login</a>
+            </li>
+            <li class="nav-item ms-2">
+              <a class="btn btn-primary-custom" href="{% url 'register' %}" data-translate="nav_register">Register</a>
+            </li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Messages Alert Panel -->
+  {% if messages %}
+    <div class="container mt-3">
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show glass-card border-0" role="alert">
+          <i class="fa-solid {% if message.tags == 'success' %}fa-circle-check text-success{% else %}fa-circle-exclamation text-danger{% endif %} me-2"></i>
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <!-- Main Content -->
+  <main class="py-4">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Footer -->
+  <footer class="text-center py-4 mt-5">
+    <div class="container">
+      <p class="mb-0 text-muted" data-translate="footer_text">Baymax HealthScan © 2026. Your personal food health safety assistant.</p>
+    </div>
+  </footer>
+
+  <!-- Bootstrap 5 Bundle JS (Popper included) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Global Translation & Helper Scripts -->
+  <script>
+    // Store preferred language from django
+    const PREFERRED_LANGUAGE = "{{ request.user.profile.preferred_language|default:'en' }}";
+    
+    // Translation dictionary
+    const TRANSLATIONS = {
+      en: {
+        nav_home: "Home",
+        nav_scan: "Scan Barcode",
+        nav_history: "History",
+        nav_settings: "Profile",
+        nav_logout: "Logout",
+        nav_login: "Login",
+        nav_register: "Register",
+        footer_text: "Baymax HealthScan © 2026. Your personal food health safety assistant.",
+        // Landing Page
+        hero_title: "I am Baymax, your Food Health Companion",
+        hero_subtitle: "Scan barcodes of any food product to instantly analyze ingredients, nutritional values, and get personalized AI health alerts.",
+        btn_start_scan: "Start Scanning",
+        btn_configure_profile: "Configure Profile",
+        section_features: "Core Features",
+        feature_scan: "Camera Scanner",
+        feature_scan_desc: "Scan barcodes using your camera or enter them manually.",
+        feature_analyze: "AI Ingredient Analysis",
+        feature_analyze_desc: "Get personalized alerts about harmful substances tailored to your health goals.",
+        feature_goals: "Goal Tracking",
+        feature_goals_desc: "Optimize food selection for Weight Loss, Diabetes, or Muscle Gain.",
+        recent_scans_title: "Logged Products",
+        saved_items_title: "Saved Products",
+        login_prompt: "Create an account to begin scanning and saving product records.",
+        // Scanner Page
+        scanner_title: "Scan Food Product",
+        scanner_subtitle: "Point your device camera at a product barcode, or enter it manually below.",
+        manual_entry: "Manual Barcode Entry",
+        barcode_placeholder: "Enter 13-digit barcode (e.g., 3017620422003)",
+        btn_analyze: "Analyze Product",
+        btn_stop_camera: "Stop Camera",
+        btn_start_camera: "Start Camera",
+        scan_error_invalid: "Please enter a valid numeric barcode.",
+        scanning_progress: "Searching database & generating AI analysis...",
+        // Settings Page
+        settings_title: "Profile & Settings",
+        settings_subtitle: "Configure your personal health goals and language preferences.",
+        goal_label: "Health Goal",
+        lang_label: "Preferred Language",
+        btn_save_settings: "Save Changes",
+        settings_success: "Profile updated successfully!",
+        // History Page
+        history_title: "Product Scan History",
+        history_subtitle: "Review your previously scanned products and saved items.",
+        saved_tab: "Saved Products",
+        all_tab: "All Scan History",
+        no_history: "No scan records found. Start scanning products!",
+        no_saved: "No saved products. Click the star icon on results to save items.",
+        // Results Page
+        results_title: "Health Report Dashboard",
+        nutrition_title: "Nutrition Facts",
+        per_100g: "per 100g",
+        harmful_ingredients_title: "Ingredients of Concern",
+        safe_alert: "No harmful ingredients flagged for your health goal!",
+        ai_summary_title: "Baymax's Assessment",
+        consumption_frequency_title: "Recommended Frequency",
+        alternatives_title: "Healthier Alternatives",
+        btn_save: "Save Product",
+        btn_unsave: "Unsave Product",
+        btn_scan_another: "Scan Another Product",
+        applied_goal_label: "Analysis Mode",
+        nutrient_calories: "Calories (Energy)",
+        nutrient_carbs: "Carbohydrates",
+        nutrient_sugars: "Sugars",
+        nutrient_fats: "Fats",
+        nutrient_proteins: "Proteins",
+        nutrient_salt: "Salt",
+        HEALTHY: "Healthy",
+        MODERATE: "Moderate",
+        UNHEALTHY: "Unhealthy",
+        GENERAL: "General Health",
+        WEIGHT_LOSS: "Weight Loss",
+        MUSCLE_GAIN: "Muscle Gain",
+        DIABETES: "Diabetes-Friendly",
+        // Profile & Report
+        profile_title: "My Profile",
+        user_info_title: "User Information",
+        username_label: "Username",
+        email_label: "Email",
+        joined_label: "Member Since",
+        health_report_title: "🩺 Baymax Health Report",
+        health_report_desc: "Diet analysis based on your logged purchases",
+        avg_diet_score: "Average Diet Score",
+        total_logged: "Total Products Consumed",
+        diet_balance: "Consumption Breakdown",
+        top_harmful_title: "Frequently Consumed Concerns",
+        eating_pattern_title: "AI Eating Pattern Analysis",
+        recommendations_title: "Personalized Recommendations",
+        logout_btn: "Logout",
+        logout_confirm_title: "Confirm Logout",
+        logout_confirm_msg: "Are you sure you want to log out?",
+        btn_cancel: "Cancel",
+        btn_logout: "Logout",
+        buy_prompt_title: "Did you buy or eat this product?",
+        buy_prompt_subtitle: "Add it to your Baymax Health Report log to track your consumption history.",
+        btn_yes_bought: "Yes, I bought it",
+        btn_no_checking: "No, just checking",
+        buy_logged_title: "Product logged in your Health Report!",
+        buy_logged_subtitle: "This product is now counted in your personal Baymax Health Report statistics.",
+      },
+      hi: {
+        nav_home: "होम",
+        nav_scan: "बारकोड स्कैन करें",
+        nav_history: "इतिहास",
+        nav_settings: "प्रोफ़ाइल",
+        nav_logout: "लॉगआउट",
+        nav_login: "लॉगिन",
+        nav_register: "रजिस्टर",
+        footer_text: "बेमैक्स हेल्थस्कैन © 2026. आपका व्यक्तिगत खाद्य सुरक्षा सहायक।",
+        hero_title: "मैं बेमैक्स हूँ, आपका खाद्य स्वास्थ्य साथी",
+        hero_subtitle: "सामग्रियों, पोषण मूल्यों का तुरंत विश्लेषण करने और व्यक्तिगत एआई स्वास्थ्य अलर्ट प्राप्त करने के लिए किसी भी खाद्य उत्पाद के बारकोड को स्कैन करें।",
+        btn_start_scan: "स्कैन करना शुरू करें",
+        btn_configure_profile: "प्रोफ़ाइल सेट करें",
+        section_features: "मुख्य विशेषताएं",
+        feature_scan: "कैमरा स्कैनर",
+        feature_scan_desc: "अपने कैमरे का उपयोग करके बारकोड स्कैन करें या मैन्युअल रूप से दर्ज करें।",
+        feature_analyze: "एआई सामग्री विश्लेषण",
+        feature_analyze_desc: "अपने स्वास्थ्य लक्ष्यों के अनुरूप हानिकारक तत्वों के बारे में व्यक्तिगत अलर्ट प्राप्त करें।",
+        feature_goals: "लक्ष्य ट्रैकिंग",
+        feature_goals_desc: "वजन घटाने, मधुमेह, या मांसपेशियों के लाभ के लिए खाद्य चयन को अनुकूलित करें।",
+        recent_scans_title: "लॉग किए गए उत्पाद",
+        saved_items_title: "सहेजे गए उत्पाद",
+        login_prompt: "उत्पाद रिकॉर्ड को स्कैन करना और सहेजना शुरू करने के लिए एक खाता बनाएं।",
+        scanner_title: "खाद्य उत्पाद स्कैन करें",
+        scanner_subtitle: "अपने डिवाइस कैमरे को उत्पाद बारकोड पर लक्षित करें, या नीचे मैन्युअल रूप से दर्ज करें।",
+        manual_entry: "मैन्युअल बारकोड प्रविष्टि",
+        barcode_placeholder: "13-अंकीय बारकोड दर्ज करें (जैसे, 3017620422003)",
+        btn_analyze: "उत्पाद का विश्लेषण करें",
+        btn_stop_camera: "कैमरा बंद करें",
+        btn_start_camera: "कैमरा चालू करें",
+        scan_error_invalid: "कृपया एक वैध संख्यात्मक बारकोड दर्ज करें।",
+        scanning_progress: "डेटाबेस में खोज रहे हैं और एआई विश्लेषण उत्पन्न कर रहे हैं...",
+        settings_title: "प्रोफ़ाइल और सेटिंग्स",
+        settings_subtitle: "अपने व्यक्तिगत स्वास्थ्य लक्ष्यों और भाषा प्राथमिकताओं को कॉन्फ़िगर करें।",
+        goal_label: "स्वास्थ्य लक्ष्य",
+        lang_label: "पसंदीदा भाषा",
+        btn_save_settings: "परिवर्तन सहेजें",
+        settings_success: "प्रोफ़ाइल सफलतापूर्वक अपडेट की गई!",
+        history_title: "उत्पाद स्कैन इतिहास",
+        history_subtitle: "अपने पहले स्कैन किए गए उत्पादों और सहेजे गए आइटमों की समीक्षा करें।",
+        saved_tab: "सहेजे गए उत्पाद",
+        all_tab: "संपूर्ण स्कैन इतिहास",
+        no_history: "कोई स्कैन रिकॉर्ड नहीं मिला। उत्पादों को स्कैन करना शुरू करें!",
+        no_saved: "कोई सहेजा गया उत्पाद नहीं है। आइटम सहेजने के लिए परिणामों पर स्टार आइकन क्लिक करें।",
+        results_title: "स्वास्थ्य रिपोर्ट डैशबोर्ड",
+        nutrition_title: "पोषण तथ्य",
+        per_100g: "प्रति 100 ग्राम",
+        harmful_ingredients_title: "चिंताजनक सामग्रियां",
+        safe_alert: "आपके स्वास्थ्य लक्ष्य के लिए कोई हानिकारक सामग्री ध्वजांकित नहीं की गई है!",
+        ai_summary_title: "बेमैक्स का आकलन",
+        consumption_frequency_title: "अनुशंसित उपभोग आवृत्ति",
+        alternatives_title: "स्वास्थ्यवर्धक विकल्प",
+        btn_save: "उत्पाद सहेजें",
+        btn_unsave: "उत्पाद हटाएँ",
+        btn_scan_another: "दूसरा उत्पाद स्कैन करें",
+        applied_goal_label: "विश्लेषण मोड",
+        nutrient_calories: "कैलोरी (ऊर्जा)",
+        nutrient_carbs: "कार्बोहाइड्रेट",
+        nutrient_sugars: "शुगर (चीनी)",
+        nutrient_fats: "फैट (वसा)",
+        nutrient_proteins: "प्रोटीन",
+        nutrient_salt: "नमक",
+        HEALTHY: "स्वस्थ",
+        MODERATE: "मध्यम",
+        UNHEALTHY: "अस्वस्थ",
+        GENERAL: "सामान्य स्वास्थ्य",
+        WEIGHT_LOSS: "वजन कम करना",
+        MUSCLE_GAIN: "मसल बनाना",
+        DIABETES: "मधुमेह अनुकूल",
+        // Profile & Report
+        profile_title: "मेरी प्रोफाइल",
+        user_info_title: "उपयोगकर्ता जानकारी",
+        username_label: "यूज़रनेम",
+        email_label: "ईमेल",
+        joined_label: "सदस्यता की तिथि",
+        health_report_title: "🩺 बेमैक्स हेल्थ रिपोर्ट",
+        health_report_desc: "आपके खरीदे गए उत्पादों पर आधारित आहार विश्लेषण",
+        avg_diet_score: "औसत आहार स्कोर",
+        total_logged: "कुल उपभोगित उत्पाद",
+        diet_balance: "उपभोग वर्गीकरण",
+        top_harmful_title: "चिंताजनक सामग्रियां",
+        eating_pattern_title: "एआई खान-पान पैटर्न विश्लेषण",
+        recommendations_title: "व्यक्तिगत सिफारिशें",
+        logout_btn: "लॉगआउट",
+        logout_confirm_title: "लॉगआउट की पुष्टि करें",
+        logout_confirm_msg: "क्या आप वाकई लॉगआउट करना चाहते हैं?",
+        btn_cancel: "रद्द करें",
+        btn_logout: "लॉगआउट",
+        buy_prompt_title: "क्या आपने यह उत्पाद खरीदा या खाया है?",
+        buy_prompt_subtitle: "अपने खान-पान के इतिहास को ट्रैक करने के लिए इसे अपने बेमैक्स हेल्थ रिपोर्ट में जोड़ें।",
+        btn_yes_bought: "हाँ, मैंने खरीदा",
+        btn_no_checking: "नहीं, बस चेक कर रहा था",
+        buy_logged_title: "उत्पाद आपकी हेल्थ रिपोर्ट में दर्ज किया गया!",
+        buy_logged_subtitle: "यह उत्पाद अब आपके व्यक्तिगत बेमैक्स हेल्थ रिपोर्ट आँकड़ों में गिना जाता है।",
+      },
+      mr: {
+        nav_home: "मुख्यपृष्ठ",
+        nav_scan: "बारकोड स्कॅन करा",
+        nav_history: "इतिहास",
+        nav_settings: "प्रोफाइल",
+        nav_logout: "लॉगआउट",
+        nav_login: "लॉगिन",
+        nav_register: "नोंदणी",
+        footer_text: "बेमॅक्स हेल्थस्कॅन © 2026. आपला वैयक्तिक अन्न सुरक्षा सहाय्यक.",
+        hero_title: "मी बेमॅक्स आहे, तुमचा अन्न आरोग्य मित्र",
+        hero_subtitle: "घटक, पोषण मूल्ये यांचे त्वरित विश्लेषण करण्यासाठी आणि वैयक्तिक एआय आरोग्य अलर्ट मिळवण्यासाठी कोणत्याही खाद्य उत्पादनाचा बारकोड स्कॅन करा.",
+        btn_start_scan: "स्कॅन करण्यास सुरुवात करा",
+        btn_configure_profile: "प्रोफाइल कॉन्फिगर करा",
+        section_features: "मुख्य वैशिष्ट्ये",
+        feature_scan: "कॅमेरा स्कॅनर",
+        feature_scan_desc: "तुमच्या कॅमेऱ्याचा वापर करून बारकोड स्कॅन करा किंवा मॅन्युअली प्रविष्ट करा.",
+        feature_analyze: "एआय घटक विश्लेषण",
+        feature_analyze_desc: "तुमच्या आरोग्य उद्दिष्टांनुसार हानिकारक घटकांबद्दल वैयक्तिकृत अलर्ट मिळवा.",
+        feature_goals: "ध्येय ट्रॅकिंग",
+        feature_goals_desc: "वजन कमी करणे, मधुमेह किंवा स्नायू वाढवण्यासाठी अन्न निवड अनुकूल करा.",
+        recent_scans_title: "नोंदवलेले उत्पादने",
+        saved_items_title: "जतन केलेली उत्पादने",
+        login_prompt: "उत्पादने स्कॅन करण्यासाठी आणि जतन करण्यासाठी एक खाते तयार करा.",
+        scanner_title: "खाद्य उत्पादन स्कॅन करा",
+        scanner_subtitle: "तुमच्या डिव्हाइसचा कॅमेरा उत्पादन बारकोडकडे दाखवा किंवा खाली मॅन्युअली प्रविष्ट करा.",
+        manual_entry: "मॅन्युअल बारकोड नोंदणी",
+        barcode_placeholder: "13-अंकी बारकोड प्रविष्ट करा (उदा. 3017620422003)",
+        btn_analyze: "उत्पादनाचे विश्लेषण करा",
+        btn_stop_camera: "कॅमेरा बंद करा",
+        btn_start_camera: "कॅमेरा सुरू करा",
+        scan_error_invalid: "कृपया एक वैध संख्यात्मक बारकोड प्रविष्ट करा.",
+        scanning_progress: "डेटाबेस शोधत आहे आणि एआय विश्लेषण तयार करत आहे...",
+        settings_title: "प्रोफाइल आणि सेटिंग्ज",
+        settings_subtitle: "तुमची वैयक्तिक आरोग्य ध्येये आणि भाषा प्राधान्ये कॉन्फिगर करा.",
+        goal_label: "आरोग्य ध्येय",
+        lang_label: "पसंतीची भाषा",
+        btn_save_settings: "बदल जतन करा",
+        settings_success: "प्रोफाइल यशस्वीरित्या अपडेट केली!",
+        history_title: "उत्पादन स्कॅन इतिहास",
+        history_subtitle: "तुमच्या पूर्वी स्कॅन केलेल्या उत्पादनांचे आणि जतन केलेल्या घटकांचे पुनरावलोकन करा.",
+        saved_tab: "जतन केलेली उत्पादने",
+        all_tab: "सर्व स्कॅन इतिहास",
+        no_history: "एकही स्कॅन रेकॉर्ड सापडला नाही. उत्पादने स्कॅन करण्यास प्रारंभ करा!",
+        no_saved: "कोणतीही जतन केलेली उत्पादने नाहीत. उत्पादने जतन करण्यासाठी निकालांवर स्टार आयकॉन क्लिक करा.",
+        results_title: "आरोग्य अहवाल डॅशबोर्ड",
+        nutrition_title: "पोषण तथ्य",
+        per_100g: "प्रति 100 ग्रॅम",
+        harmful_ingredients_title: "काळजीचे घटक",
+        safe_alert: "तुमच्या आरोग्य ध्येयासाठी कोणतेही हानिकारक घटक आढळले नाहीत!",
+        ai_summary_title: "बेमॅक्सचे मूल्यांकन",
+        consumption_frequency_title: "शिफारस केलेली सेवन वारंवारता",
+        alternatives_title: "आरोग्यदायी पर्याय",
+        btn_save: "उत्पादन जतन करा",
+        btn_unsave: "उत्पादन काढून टाका",
+        btn_scan_another: "दुसरे उत्पादन स्कॅन करा",
+        applied_goal_label: "विश्लेषण मोड",
+        nutrient_calories: "कॅलरीज (ऊर्जा)",
+        nutrient_carbs: "कार्बोहायड्रेट्स",
+        nutrient_sugars: "साखर",
+        nutrient_fats: "चरबी (फैट)",
+        nutrient_proteins: "प्रोटीन",
+        nutrient_salt: "मीठ",
+        HEALTHY: "निरोगी",
+        MODERATE: "मध्यम",
+        UNHEALTHY: "अनिरोगी",
+        GENERAL: "सामान्य आरोग्य",
+        WEIGHT_LOSS: "वजन कमी करणे",
+        MUSCLE_GAIN: "स्नायू वाढवणे",
+        DIABETES: "मधुमेह अनुकूल",
+        // Profile & Report
+        profile_title: "माझी प्रोफाइल",
+        user_info_title: "वापरकर्ता माहिती",
+        username_label: "वापरकर्तानाव",
+        email_label: "ईमेल",
+        joined_label: "सदस्यता तारीख",
+        health_report_title: "🩺 बेमॅक्स हेल्थ रिपोर्ट",
+        health_report_desc: "तुमच्या खरेदी केलेल्या उत्पादनांवर आधारित आहार विश्लेषण",
+        avg_diet_score: "सरासरी आहार स्कोर",
+        total_logged: "एकूण उपभोगलेली उत्पादने",
+        diet_balance: "उपभोग वर्गीकरण",
+        top_harmful_title: "वारंवार उपभोगलेले हानिकारक घटक",
+        eating_pattern_title: "एआय खाण्याच्या पद्धतीचे विश्लेषण",
+        recommendations_title: "वैयक्तिक शिफारसी",
+        logout_btn: "लॉगआउट",
+        logout_confirm_title: "लॉगआउटची खात्री करा",
+        logout_confirm_msg: "तुम्हाला नक्की लॉगआउट करायचे आहे का?",
+        btn_cancel: "रद्द करा",
+        btn_logout: "लॉगआउट",
+        buy_prompt_title: "तुम्ही हे उत्पादन विकत घेतले किंवा खाल्ले आहे का?",
+        buy_prompt_subtitle: "तुमच्या खाण्याच्या इतिहासाचा मागोवा घेण्यासाठी हे तुमच्या बेमॅक्स हेल्थ रिपोर्ट लॉगमध्ये जोडा.",
+        btn_yes_bought: "होय, मी खरेदी केले",
+        btn_no_checking: "नाही, फक्त पाहत होतो",
+        buy_logged_title: "उत्पादन तुमच्या हेल्थ रिपोर्टमध्ये नोंदवले गेले!",
+        buy_logged_subtitle: "हे उत्पादन आता तुमच्या वैयक्तिक बेमॅक्स हेल्थ रिपोर्ट आकडेवारीमध्ये मोजले जाईल.",
+      }
+    };
+
+    // Client-side instant translation function
+    function translatePage(lang) {
+      const language = TRANSLATIONS[lang] ? lang : 'en';
+      const dict = TRANSLATIONS[language];
+      
+      document.querySelectorAll('[data-translate]').forEach(element => {
+        const key = element.getAttribute('data-translate');
+        if (dict[key]) {
+          if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
+            element.placeholder = dict[key];
+          } else {
+            element.textContent = dict[key];
+          }
+        }
+      });
+
+      // Translate dynamic risk level badges
+      document.querySelectorAll('.risk-level-badge').forEach(element => {
+        const risk = element.getAttribute('data-risk');
+        if (dict[risk]) {
+          element.textContent = dict[risk];
+        }
+      });
+
+      // Translate dynamic goal values
+      document.querySelectorAll('.applied-goal-value').forEach(element => {
+        const goal = element.getAttribute('data-goal');
+        if (dict[goal]) {
+          element.textContent = dict[goal];
+        }
+      });
+      
+      // Update html lang attribute
+      document.documentElement.lang = language;
+    }
+
+    // Run translations on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      translatePage(PREFERRED_LANGUAGE);
+    });
+  </script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>
