@@ -2,6 +2,12 @@ import os
 from pathlib import Path
 import environ
 
+try:
+    import pymysql
+    pymysql.install_as_MySQLdb()
+except ImportError:
+    pass
+
 # Initialize environment variables
 env = environ.Env(
     DEBUG=(bool, True),
@@ -78,10 +84,7 @@ WSGI_APPLICATION = 'baymax_healthscan.wsgi.wsgi'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': env.db('DATABASE_URL', default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}")
 }
 
 
